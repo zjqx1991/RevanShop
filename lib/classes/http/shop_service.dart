@@ -3,7 +3,7 @@ import 'revan_api.dart';
 import 'revan_http.dart';
 import 'revan_response.dart';
 
-Future getHomePageData() async {
+Future homeBannerData() async {
 
   print('首页请求数据: 开始请求。。。。。。');
   try {
@@ -14,6 +14,6 @@ Future getHomePageData() async {
     return response;
   }
   catch (e) {
-    print('首页数据请求失败:======> ${e}');
+    print('ERROR:======> ${e}');
   }
 }

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import '../http/shop_service.dart';
 import '../http/revan_response.dart';
 import 'model/slides_model.dart';
-import 'package:flutter_page_indicator/flutter_page_indicator.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'views/home_banner.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -23,34 +20,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    getHomePageData().then((response){
-      RevanResponse res = response;
-      this.model = SlidesModel(res.data);
-      setState(() {});
-    });
+    // getHomePageData().then((response){
+    //   RevanResponse res = response;
+    //   this.model = SlidesModel(res.data);
+    //   setState(() {});
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
-
-
-    if (this.model == null) {
-      return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: Text(
-                'Home'
-            ),
-          ),
-          body: Container(
-            child: Center(
-              child: Text('正在加载中。。。。'),
-            )
-          )
-      );
-    }
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -58,27 +36,45 @@ class _HomePageState extends State<HomePage> {
           'Home'
         ),
       ),
-      body: Container(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: ScreenUtil.getInstance().setHeight(333.0),
-              child: Swiper(
-                itemCount: this.model.slides.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Image.network(
-                      this.model.slides[index].image,
-                    fit: BoxFit.fill,
-                  );
-                },
-                autoplay: true,
-                indicatorLayout: PageIndicatorLayout.NONE,
-                pagination: SwiperPagination(),
-
-              ),
-            )
-          ],
-        ),
+      body: FutureBuilder(
+        future: homeBannerData(),
+        builder:(BuildContext context, AsyncSnapshot snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+              return Container(
+              child: Text(
+                'none'
+                ),
+              );
+            case ConnectionState.waiting:
+              return Container(
+              child: Text(
+                'waiting'
+                ),
+              );
+            case ConnectionState.done:
+              if (snapshot.hasError) {
+                return Container(
+                  child: Text(
+                    'waiting'
+                  ),
+                );
+              }
+              RevanResponse response = snapshot.data as RevanResponse;
+              return Container(
+                  child: SingleChildScrollView(
+                    child: HomeBannerWidget(model: SlidesModel(response.data),),
+                  ),
+                );
+            case ConnectionState.active:
+              // TODO: Handle this case.
+              break;
+          }
+          return Container(
+            color: Colors.red,
+          );
+        },
+        
       )
     );
   }
